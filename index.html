@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bangladesh Job Market Visualizer</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f1117;
+    color: #e8e8e8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 18px 24px 10px;
+    border-bottom: 1px solid #2a2d3a;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-left h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .header-left p {
+    font-size: 0.78rem;
+    color: #8890a4;
+    margin-top: 3px;
+    max-width: 560px;
+    line-height: 1.4;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .controls label {
+    font-size: 0.75rem;
+    color: #8890a4;
+    margin-right: -4px;
+  }
+
+  .toggle-btn {
+    padding: 6px 14px;
+    border: 1px solid #3a3f52;
+    background: #1a1d29;
+    color: #c0c5d4;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .toggle-btn:hover { background: #252839; border-color: #5a7bc5; }
+  .toggle-btn.active {
+    background: #2c4a8c;
+    border-color: #5a7bc5;
+    color: #fff;
+  }
+
+  .legend {
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #1e2130;
+  }
+  .legend-label { font-size: 0.72rem; color: #6b7280; }
+  .legend-gradient {
+    height: 12px;
+    width: 160px;
+    border-radius: 3px;
+    border: 1px solid #2a2d3a;
+  }
+  .legend-values {
+    display: flex;
+    justify-content: space-between;
+    width: 160px;
+    font-size: 0.65rem;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+
+  #chart-container {
+    flex: 1;
+    padding: 16px 20px 12px;
+    min-height: 500px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .cell rect {
+    stroke: #0f1117;
+    stroke-width: 1.5;
+    transition: opacity 0.15s;
+    cursor: pointer;
+  }
+  .cell rect:hover { opacity: 0.82; stroke-width: 2.5; stroke: #fff; }
+
+  .cell-label {
+    pointer-events: none;
+    font-size: 11px;
+    fill: rgba(255,255,255,0.92);
+    font-weight: 600;
+    dominant-baseline: middle;
+    user-select: none;
+  }
+  .cell-sublabel {
+    pointer-events: none;
+    font-size: 9px;
+    fill: rgba(255,255,255,0.6);
+    dominant-baseline: middle;
+    user-select: none;
+  }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed;
+    display: none;
+    background: rgba(12,14,22,0.97);
+    border: 1px solid #3a4060;
+    border-radius: 10px;
+    padding: 14px 16px;
+    max-width: 320px;
+    font-size: 0.8rem;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    line-height: 1.55;
+  }
+  #tooltip h3 {
+    font-size: 0.95rem;
+    color: #fff;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .tt-row { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 4px; }
+  .tt-key { color: #8890a4; }
+  .tt-val { color: #e2e8f0; font-weight: 600; text-align: right; }
+  .tt-divider { border: none; border-top: 1px solid #2a2d3a; margin: 8px 0; }
+  .tt-rationale { color: #b0bbd0; font-size: 0.75rem; line-height: 1.5; font-style: italic; }
+
+  .score-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+
+  footer {
+    padding: 8px 24px;
+    border-top: 1px solid #1e2130;
+    font-size: 0.68rem;
+    color: #4b5568;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  footer a { color: #5a7bc5; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>🇧🇩 Bangladesh Job Market Visualizer</h1>
+    <p>
+      Interactive treemap of <strong>46 occupations</strong> covering ~66M workers across Bangladesh's economy.
+      Area = headcount. Color = selected metric.
+      Data: BBS Labour Force Survey 2023 · BGMEA · BMET · BBS Wage Survey.
+      Inspired by <a href="https://karpathy.ai/jobs/" target="_blank" style="color:#5a7bc5">Andrej Karpathy's US Job Market Visualizer</a>.
+    </p>
+  </div>
+  <div class="controls">
+    <label>Color by:</label>
+    <button class="toggle-btn" data-metric="headcount">👥 Headcount</button>
+    <button class="toggle-btn active" data-metric="ai_exposure">🤖 Digital AI Exposure</button>
+    <button class="toggle-btn" data-metric="wage">💰 Monthly Wage (BDT)</button>
+    <button class="toggle-btn" data-metric="education">🎓 Education Tier</button>
+  </div>
+</header>
+
+<div class="legend" id="legend-container"></div>
+
+<div id="chart-container">
+  <svg id="treemap"></svg>
+</div>
+
+<div id="tooltip"></div>
+
+<footer>
+  <span>Sources: BBS LFS 2023 · BGMEA · BMET · Bangladesh Bank · Glassdoor BD · PayScale BD · BBS National Pay Scale 2015</span>
+  <span>Blueprint: Bangladesh Jobs Visualizer v1.0 · Architecture adapted from <a href="https://github.com/karpathy/jobs" target="_blank">karpathy/jobs</a></span>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// EMBEDDED DATA — In production, fetch('data.json') instead
+// ─────────────────────────────────────────────────────────────────
+const DATA = {
+  "meta": {"title":"Bangladesh Job Market Visualizer","total_workforce_millions":71.1,"data_year":2023,"primary_source":"BBS Labour Force Survey 2023","wage_currency":"BDT","wage_period":"monthly"},
+  "education_tiers": {"1":"No formal education","2":"Primary (Class 1-5)","3":"Secondary / SSC","4":"Higher Secondary / HSC","5":"Vocational / TVET","6":"Bachelor's Degree","7":"Master's / Postgraduate","8":"Medical / Prof. Degree"},
+  "occupations": [
+    {"slug":"rice-paddy-farmer","title":"Rice & Paddy Farmer","category":"Agriculture","headcount":14500000,"avg_monthly_wage_bdt":8000,"education_tier":2,"ai_exposure":1,"ai_rationale":"Work is entirely physical field labour — planting, irrigating, harvesting. No digital output. Seasonal and weather-dependent. AI has minimal impact on subsistence rice farming in Bangladesh."},
+    {"slug":"agricultural-day-laborer","title":"Agricultural Day Laborer","category":"Agriculture","headcount":6500000,"avg_monthly_wage_bdt":7000,"education_tier":1,"ai_exposure":1,"ai_rationale":"Seasonal wage labour involving planting, weeding, harvesting. Purely physical. No digital work output. Among the lowest AI exposure occupations in Bangladesh."},
+    {"slug":"retail-shop-worker","title":"Retail Shop Worker","category":"Trade & Commerce","headcount":5000000,"avg_monthly_wage_bdt":12000,"education_tier":3,"ai_exposure":3,"ai_rationale":"Customer-facing retail requires local presence. Larger shops use POS systems. E-commerce growth is gradually shifting some retail activities to digital platforms."},
+    {"slug":"rickshaw-driver","title":"Rickshaw / Van Puller","category":"Transport","headcount":3500000,"avg_monthly_wage_bdt":10000,"education_tier":2,"ai_exposure":1,"ai_rationale":"Purely physical transport work. Cannot be automated or digitized. Rickshaws are a fundamental part of Bangladesh urban transport infrastructure."},
+    {"slug":"construction-worker","title":"Construction Laborer","category":"Construction","headcount":3500000,"avg_monthly_wage_bdt":12000,"education_tier":2,"ai_exposure":1,"ai_rationale":"Manual brick-laying, concrete mixing, and scaffolding work. Entirely physical and site-bound. AI cannot substitute for physical construction labour in Bangladesh's construction boom."},
+    {"slug":"rmg-sewing-operator","title":"RMG Sewing Operator","category":"Ready-Made Garments","headcount":3317397,"avg_monthly_wage_bdt":13500,"education_tier":3,"ai_exposure":2,"ai_rationale":"Highly repetitive but requires manual dexterity and physical machine operation on factory floor. Mass automation remains limited by Bangladesh's wage economics."},
+    {"slug":"vegetable-farmer","title":"Vegetable Farmer","category":"Agriculture","headcount":3800000,"avg_monthly_wage_bdt":9000,"education_tier":2,"ai_exposure":1,"ai_rationale":"Hands-on cultivation, irrigation management, and market transport. AI may help with weather forecasting apps but core work remains physical."},
+    {"slug":"hotel-restaurant-worker","title":"Hotel / Restaurant Worker","category":"Hospitality","headcount":2500000,"avg_monthly_wage_bdt":11000,"education_tier":3,"ai_exposure":2,"ai_rationale":"Food preparation and in-person service are physical. Some digitization of ordering in large restaurants but street food and mid-range dining remains manual."},
+    {"slug":"truck-bus-driver","title":"Truck / Bus Driver","category":"Transport","headcount":2000000,"avg_monthly_wage_bdt":20000,"education_tier":3,"ai_exposure":2,"ai_rationale":"Driving on Bangladesh's road network requires local navigation expertise. AI autonomous vehicles are decades away from Bangladesh roads."},
+    {"slug":"domestic-worker","title":"Domestic Worker","category":"Household Services","headcount":2000000,"avg_monthly_wage_bdt":8000,"education_tier":1,"ai_exposure":1,"ai_rationale":"Physical housework — cooking, cleaning, childcare — cannot be digitized. Entirely in-person and human-to-human. Among the lowest AI exposure categories."},
+    {"slug":"poultry-livestock-farmer","title":"Poultry & Livestock Farmer","category":"Agriculture","headcount":2200000,"avg_monthly_wage_bdt":9500,"education_tier":2,"ai_exposure":2,"ai_rationale":"Daily feeding, healthcare, and husbandry are physical tasks. AI diagnostic apps beginning to emerge for disease detection, but core role is manual."},
+    {"slug":"fisherman","title":"Fisherman (Inland & Coastal)","category":"Agriculture","headcount":1800000,"avg_monthly_wage_bdt":10000,"education_tier":2,"ai_exposure":2,"ai_rationale":"Core work is physical net-casting and boat operation. Some AI-powered weather and fish-finding apps emerging, but the catch itself is entirely physical."},
+    {"slug":"migrant-worker-abroad","title":"Overseas Migrant Worker","category":"Migrant Labor","headcount":1300000,"avg_monthly_wage_bdt":28000,"education_tier":3,"ai_exposure":2,"ai_rationale":"Construction workers, cleaners, domestic helpers, and drivers in Gulf and Malaysia perform physical labour. AI cannot substitute for these roles in the near term."},
+    {"slug":"mason-carpenter","title":"Mason & Carpenter","category":"Construction","headcount":1200000,"avg_monthly_wage_bdt":20000,"education_tier":3,"ai_exposure":2,"ai_rationale":"Skilled trade requiring physical dexterity on construction sites. Some use of digital drawings/plans. Core craft is manual and location-bound."},
+    {"slug":"jute-worker","title":"Jute Cultivation Worker","category":"Agriculture","headcount":1200000,"avg_monthly_wage_bdt":8500,"education_tier":2,"ai_exposure":1,"ai_rationale":"Jute retting, fibre separation, and processing are manual physical tasks deeply tied to rural Bangladesh. Essentially zero digital work product."},
+    {"slug":"textile-spinner","title":"Textile Mill Spinner","category":"Manufacturing","headcount":700000,"avg_monthly_wage_bdt":14000,"education_tier":3,"ai_exposure":2,"ai_rationale":"Operating spinning and weaving machinery is physical. Some digital monitoring of machine parameters, but core work is mechanical."},
+    {"slug":"beauty-salon-worker","title":"Beauty Salon Worker","category":"Personal Services","headcount":700000,"avg_monthly_wage_bdt":15000,"education_tier":3,"ai_exposure":1,"ai_rationale":"Entirely physical hands-on personal grooming service. Cannot be replaced or augmented by AI in meaningful ways."},
+    {"slug":"freelance-digital-worker","title":"Freelance Digital Worker","category":"IT & Digital","headcount":650000,"avg_monthly_wage_bdt":35000,"education_tier":4,"ai_exposure":8,"ai_rationale":"Bangladesh has one of the world's largest freelancer communities. Tasks like data entry, graphic design, and content writing are being directly automated by generative AI tools."},
+    {"slug":"shrimp-farmer","title":"Shrimp / Aquaculture Farmer","category":"Agriculture","headcount":800000,"avg_monthly_wage_bdt":11000,"education_tier":3,"ai_exposure":2,"ai_rationale":"Managing shrimp ghers requires physical presence for feeding, water quality monitoring, and harvesting. Some IoT sensor adoption in export-oriented farms."},
+    {"slug":"electrician-plumber","title":"Electrician & Plumber","category":"Construction","headcount":800000,"avg_monthly_wage_bdt":22000,"education_tier":5,"ai_exposure":2,"ai_rationale":"Installation and repair work is physical and site-specific. AI troubleshooting assistants may help diagnostics, but hands-on work cannot be digitized."},
+    {"slug":"factory-machine-operator","title":"Factory Machine Operator","category":"Manufacturing","headcount":900000,"avg_monthly_wage_bdt":15000,"education_tier":3,"ai_exposure":3,"ai_rationale":"Operating machinery in pharma, food processing or ceramics sectors. Some smart monitoring systems exist but physical operation dominates."},
+    {"slug":"software-engineer","title":"Software Engineer","category":"IT & Digital","headcount":400000,"avg_monthly_wage_bdt":65000,"education_tier":6,"ai_exposure":9,"ai_rationale":"Work product is entirely digital code and documentation. AI coding assistants (Copilot, ChatGPT) already substantially augment developer productivity. Remote work possible. Highest AI exposure."},
+    {"slug":"ngo-development-worker","title":"NGO & Development Worker","category":"Civil Society","headcount":500000,"avg_monthly_wage_bdt":35000,"education_tier":6,"ai_exposure":5,"ai_rationale":"Report writing, data collection, and grant applications are digital. Field work and community facilitation require physical presence. Bangladesh's massive NGO sector increasingly uses digital MIS tools."},
+    {"slug":"bcs-admin-officer","title":"BCS Administration Officer","category":"Government & Civil Service","headcount":450000,"avg_monthly_wage_bdt":37000,"education_tier":6,"ai_exposure":5,"ai_rationale":"Document processing and report writing are digital but citizen service delivery requires physical presence. e-governance initiatives expanding digital work but bureaucratic processes remain paper-heavy."},
+    {"slug":"rmg-cutting-worker","title":"RMG Cutting Worker","category":"Ready-Made Garments","headcount":450000,"avg_monthly_wage_bdt":14000,"education_tier":3,"ai_exposure":3,"ai_rationale":"Cutting is physical and pattern-based. CAD/CAM cutting systems are used in mid-to-large factories. Digital exposure exists at the pattern-design stage, but physical cutting remains dominant."},
+    {"slug":"mobile-banking-agent","title":"Mobile Banking Agent (bKash/Nagad)","category":"Financial Services","headcount":400000,"avg_monthly_wage_bdt":15000,"education_tier":3,"ai_exposure":4,"ai_rationale":"Agents use smartphone platforms and digital systems. AI-powered fraud detection and automated workflows are actively transforming this space. Physical cash handling remains for now."},
+    {"slug":"data-analyst","title":"Data Analyst","category":"IT & Digital","headcount":150000,"avg_monthly_wage_bdt":55000,"education_tier":6,"ai_exposure":8,"ai_rationale":"Data analysis work — SQL queries, Python scripts, BI dashboards — is entirely digital. AI and LLMs can already perform much of this work. Role shifting toward interpretation of AI-generated insights."},
+    {"slug":"bank-officer","title":"Bank Officer / Financial Analyst","category":"Banking & Finance","headcount":300000,"avg_monthly_wage_bdt":45000,"education_tier":6,"ai_exposure":7,"ai_rationale":"Financial analysis, loan processing, and report generation are largely digital. AI models for credit scoring are actively adopted by Bangladeshi banks. KYC still requires physical presence."},
+    {"slug":"accountant-auditor","title":"Accountant / Auditor","category":"Banking & Finance","headcount":200000,"avg_monthly_wage_bdt":38000,"education_tier":6,"ai_exposure":7,"ai_rationale":"Bookkeeping, tax filing, and audit reports are highly automatable digital tasks. AI accounting tools already handle routine transactions. Role shifting toward financial advisory and compliance."},
+    {"slug":"primary-school-teacher","title":"Primary School Teacher","category":"Education","headcount":600000,"avg_monthly_wage_bdt":18000,"education_tier":5,"ai_exposure":3,"ai_rationale":"Core teaching requires physical presence and human interaction with children. AI tutoring tools may supplement but cannot replace teachers, especially in rural Bangladesh with limited connectivity."},
+    {"slug":"secondary-school-teacher","title":"Secondary / HSC Teacher","category":"Education","headcount":500000,"avg_monthly_wage_bdt":22000,"education_tier":6,"ai_exposure":4,"ai_rationale":"Growing use of digital content and online tutoring platforms. AI can generate lesson plans but classroom instruction is still physically delivered in Bangladesh's education system."},
+    {"slug":"microfinance-field-officer","title":"Microfinance Field Officer","category":"Financial Services","headcount":300000,"avg_monthly_wage_bdt":22000,"education_tier":4,"ai_exposure":4,"ai_rationale":"Uses mobile apps and digital forms for loan disbursement and collection. AI credit scoring is increasingly used by MFIs like Grameen Bank and BRAC. Field visits remain essential."},
+    {"slug":"it-support-technician","title":"IT Support Technician","category":"IT & Digital","headcount":200000,"avg_monthly_wage_bdt":30000,"education_tier":5,"ai_exposure":6,"ai_rationale":"Remote troubleshooting and ticket resolution is highly automatable by AI chatbots and diagnostic systems. Physical hardware replacement requires presence. Mix of digital and physical exposure."},
+    {"slug":"engineer-civil-electrical","title":"Civil & Electrical Engineer","category":"Engineering","headcount":150000,"avg_monthly_wage_bdt":50000,"education_tier":6,"ai_exposure":5,"ai_rationale":"Design work uses digital tools (AutoCAD, BIM) that AI is beginning to augment. Site supervision and construction management require physical presence."},
+    {"slug":"rmg-supervisor","title":"RMG Production Supervisor","category":"Ready-Made Garments","headcount":200000,"avg_monthly_wage_bdt":25000,"education_tier":4,"ai_exposure":4,"ai_rationale":"Supervisors use ERP and production management software increasingly. AI tools for production scheduling are entering larger factories. Physical floor presence still essential."},
+    {"slug":"pharmacy-salesperson","title":"Pharmacy Salesperson","category":"Healthcare Retail","headcount":600000,"avg_monthly_wage_bdt":13000,"education_tier":4,"ai_exposure":3,"ai_rationale":"Dispensing medicines requires physical presence. AI-powered drug interaction checkers and digital prescriptions are growing but full digitization is limited by regulatory constraints."},
+    {"slug":"university-professor","title":"University Professor","category":"Education","headcount":50000,"avg_monthly_wage_bdt":55000,"education_tier":7,"ai_exposure":6,"ai_rationale":"Research output is entirely digital. AI tools for literature review, writing, and data analysis are transforming academic work. Teaching component still requires physical presence."},
+    {"slug":"ride-sharing-driver","title":"Ride-Sharing Driver (Pathao/Shohoz)","category":"Transport","headcount":500000,"avg_monthly_wage_bdt":18000,"education_tier":3,"ai_exposure":3,"ai_rationale":"Uses smartphone app platform for dispatch and payment. Work product is physical driving but algorithmic management via AI platforms determines income and work patterns significantly."},
+    {"slug":"call-center-agent","title":"Call Center / BPO Agent","category":"IT & Digital","headcount":100000,"avg_monthly_wage_bdt":22000,"education_tier":4,"ai_exposure":8,"ai_rationale":"Conversational AI and chatbots are directly replacing call center agents globally. Bangladesh's growing BPO sector faces high disruption as LLMs handle routine customer service in Bangla and English."},
+    {"slug":"journalist-media","title":"Journalist / Media Professional","category":"Media & Communications","headcount":80000,"avg_monthly_wage_bdt":30000,"education_tier":6,"ai_exposure":7,"ai_rationale":"Writing, editing, and content creation are highly exposed to LLM automation. Digital journalism workflows are fully digital. AI can already generate news summaries, translations, and routine reporting."},
+    {"slug":"garments-merchandiser","title":"Garments Merchandiser","category":"Ready-Made Garments","headcount":80000,"avg_monthly_wage_bdt":45000,"education_tier":6,"ai_exposure":6,"ai_rationale":"Communication with buyers, order tracking, and quality documentation are primarily digital. AI tools for email drafting and ERP optimization are applicable. Factory visits still required."},
+    {"slug":"lawyer-judge","title":"Lawyer / Legal Professional","category":"Legal","headcount":60000,"avg_monthly_wage_bdt":60000,"education_tier":6,"ai_exposure":6,"ai_rationale":"Legal research, contract drafting, and document review are highly digital and LLM-exposed. Court appearances and client negotiation require physical presence. AI legal tools growing rapidly."},
+    {"slug":"nurse-paramedic","title":"Nurse & Paramedic","category":"Healthcare","headcount":75000,"avg_monthly_wage_bdt":25000,"education_tier":6,"ai_exposure":3,"ai_rationale":"Bedside care, medication administration, and patient monitoring are physical. AI can support scheduling and documentation but direct patient care cannot be digitized."},
+    {"slug":"medical-doctor","title":"Medical Doctor (MBBS/Specialist)","category":"Healthcare","headcount":100000,"avg_monthly_wage_bdt":80000,"education_tier":8,"ai_exposure":5,"ai_rationale":"Physical examination and surgery require in-person presence. AI diagnostic tools (radiology AI, ECG analysis) growing in Bangladeshi hospitals. Significant AI augmentation potential."},
+    {"slug":"shipbuilding-worker","title":"Shipbuilding Worker","category":"Manufacturing","headcount":150000,"avg_monthly_wage_bdt":20000,"education_tier":5,"ai_exposure":2,"ai_rationale":"Heavy manual metalwork and welding in Dhaka/Chittagong shipyards. Some digital design tools used by engineers but workers perform physical construction tasks."}
+  ]
+};
+
+// ─────────────────────────────────────────────────────────────────
+// Color scales
+// ─────────────────────────────────────────────────────────────────
+const AI_COLORS = [
+  "#1e3a5f", "#1d4e89", "#1565c0", "#1976d2",
+  "#2196f3", "#42a5f5", "#64b5f6", "#ff9800",
+  "#f57c00", "#e65100"
+];
+
+const WAGE_SCALE = d3.scaleSequential()
+  .domain([7000, 85000])
+  .interpolator(d3.interpolateRgb("#1a2a4a", "#e65100"));
+
+const EDU_COLORS = {
+  1: "#4a1942", 2: "#6b2d6b", 3: "#7b5ea7",
+  4: "#5aac8b", 5: "#3d9970", 6: "#27ae60",
+  7: "#1abc9c", 8: "#16a085"
+};
+
+const CATEGORY_COLORS = {
+  "Agriculture": "#2e7d32",
+  "Ready-Made Garments": "#c62828",
+  "Manufacturing": "#6a1b9a",
+  "Construction": "#e65100",
+  "Services": "#1565c0",
+  "Trade & Commerce": "#0277bd",
+  "Transport": "#00838f",
+  "Hospitality": "#558b2f",
+  "Household Services": "#795548",
+  "Financial Services": "#1b5e20",
+  "Healthcare Retail": "#880e4f",
+  "Personal Services": "#4527a0",
+  "IT & Digital": "#0d47a1",
+  "Banking & Finance": "#1a237e",
+  "Government & Civil Service": "#1b5e20",
+  "Education": "#33691e",
+  "Healthcare": "#880e4f",
+  "Media & Communications": "#e65100",
+  "Civil Society": "#4e342e",
+  "Engineering": "#37474f",
+  "Legal": "#4a148c",
+  "Migrant Labor": "#bf360c"
+};
+
+function getColor(d, metric) {
+  if (metric === 'ai_exposure') return AI_COLORS[Math.min(d.ai_exposure, 9)];
+  if (metric === 'wage') return WAGE_SCALE(d.avg_monthly_wage_bdt);
+  if (metric === 'education') return EDU_COLORS[d.education_tier] || "#666";
+  if (metric === 'headcount') return CATEGORY_COLORS[d.category] || "#4a5568";
+  return "#4a5568";
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Legend
+// ─────────────────────────────────────────────────────────────────
+function renderLegend(metric) {
+  const container = document.getElementById('legend-container');
+  container.innerHTML = '';
+
+  if (metric === 'ai_exposure') {
+    const label = document.createElement('span');
+    label.className = 'legend-label';
+    label.textContent = 'Digital AI Exposure:';
+    container.appendChild(label);
+    for (let i = 0; i <= 9; i++) {
+      const box = document.createElement('div');
+      box.style.cssText = `display:inline-block;width:22px;height:14px;background:${AI_COLORS[i]};border-radius:2px;`;
+      box.title = `Score ${i}`;
+      container.appendChild(box);
+    }
+    const lo = document.createElement('span');
+    lo.className = 'legend-label';
+    lo.textContent = '  0=Physical';
+    container.appendChild(lo);
+    const hi = document.createElement('span');
+    hi.className = 'legend-label';
+    hi.textContent = ' 9=Fully Digital';
+    container.appendChild(hi);
+  } else if (metric === 'wage') {
+    const label = document.createElement('span');
+    label.className = 'legend-label';
+    label.textContent = 'Monthly Wage (BDT):';
+    container.appendChild(label);
+    const grad = document.createElement('canvas');
+    grad.style.cssText = 'width:160px;height:14px;border-radius:3px;border:1px solid #2a2d3a';
+    grad.width = 160; grad.height = 14;
+    const ctx = grad.getContext('2d');
+    const grd = ctx.createLinearGradient(0,0,160,0);
+    grd.addColorStop(0, '#1a2a4a');
+    grd.addColorStop(0.5, '#2196f3');
+    grd.addColorStop(1, '#e65100');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0,0,160,14);
+    container.appendChild(grad);
+    const vals = document.createElement('div');
+    vals.className = 'legend-values';
+    vals.style.width = '160px';
+    vals.innerHTML = '<span>৳7,000</span><span>৳45,000</span><span>৳85,000</span>';
+    container.appendChild(vals);
+  } else if (metric === 'education') {
+    const label = document.createElement('span');
+    label.className = 'legend-label';
+    label.textContent = 'Education:';
+    container.appendChild(label);
+    const tiers = DATA.education_tiers;
+    Object.entries(tiers).forEach(([k, v]) => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:4px;margin-right:8px;';
+      item.innerHTML = `<div style="width:10px;height:10px;background:${EDU_COLORS[k]};border-radius:2px;flex-shrink:0"></div><span style="font-size:0.65rem;color:#9ca3af">${v}</span>`;
+      container.appendChild(item);
+    });
+  } else if (metric === 'headcount') {
+    const label = document.createElement('span');
+    label.className = 'legend-label';
+    label.textContent = 'Sector (area = headcount):';
+    container.appendChild(label);
+    const cats = [...new Set(DATA.occupations.map(d => d.category))];
+    cats.slice(0,8).forEach(cat => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:4px;margin-right:8px;';
+      item.innerHTML = `<div style="width:10px;height:10px;background:${CATEGORY_COLORS[cat]||'#666'};border-radius:2px;flex-shrink:0"></div><span style="font-size:0.65rem;color:#9ca3af">${cat}</span>`;
+      container.appendChild(item);
+    });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Tooltip
+// ─────────────────────────────────────────────────────────────────
+function showTooltip(event, d, metric) {
+  const tt = document.getElementById('tooltip');
+  const scoreColor = d.ai_exposure >= 7 ? '#e65100' : d.ai_exposure >= 4 ? '#f59e0b' : '#27ae60';
+  tt.innerHTML = `
+    <h3>${d.title}</h3>
+    <div class="tt-row"><span class="tt-key">Category</span><span class="tt-val">${d.category}</span></div>
+    <div class="tt-row"><span class="tt-key">Workers</span><span class="tt-val">${(d.headcount/1e6).toFixed(2)}M (${(d.headcount/1000).toFixed(0)}K)</span></div>
+    <div class="tt-row"><span class="tt-key">Monthly Wage</span><span class="tt-val">৳${d.avg_monthly_wage_bdt.toLocaleString()} BDT</span></div>
+    <div class="tt-row"><span class="tt-key">Education</span><span class="tt-val">${DATA.education_tiers[d.education_tier]}</span></div>
+    <hr class="tt-divider">
+    <div class="tt-row">
+      <span class="tt-key">🤖 AI Exposure</span>
+      <span class="tt-val"><span class="score-badge" style="background:${scoreColor}22;color:${scoreColor};border:1px solid ${scoreColor}44">${d.ai_exposure}/10</span></span>
+    </div>
+    <p class="tt-rationale">${d.ai_rationale}</p>
+  `;
+  tt.style.display = 'block';
+  const x = Math.min(event.clientX + 16, window.innerWidth - 340);
+  const y = Math.min(event.clientY + 16, window.innerHeight - tt.offsetHeight - 20);
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Treemap
+// ─────────────────────────────────────────────────────────────────
+let currentMetric = 'ai_exposure';
+
+function renderTreemap(metric) {
+  const container = document.getElementById('chart-container');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+
+  const svg = d3.select('#treemap')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('width', W)
+    .attr('height', H);
+
+  svg.selectAll('*').remove();
+
+  // Build hierarchy — group by category
+  const grouped = d3.group(DATA.occupations, d => d.category);
+  const hierarchyData = {
+    name: "Bangladesh",
+    children: Array.from(grouped, ([cat, occs]) => ({
+      name: cat,
+      children: occs.map(o => ({ ...o, value: o.headcount }))
+    }))
+  };
+
+  const root = d3.hierarchy(hierarchyData)
+    .sum(d => d.value)
+    .sort((a, b) => b.value - a.value);
+
+  d3.treemap()
+    .size([W, H])
+    .paddingOuter(4)
+    .paddingInner(2)
+    .paddingTop(20)
+    .round(true)(root);
+
+  // Category header labels
+  const categories = root.children;
+  categories.forEach(cat => {
+    svg.append('text')
+      .attr('x', cat.x0 + 4)
+      .attr('y', cat.y0 + 13)
+      .style('font-size', '10px')
+      .style('font-weight', '700')
+      .style('fill', 'rgba(255,255,255,0.5)')
+      .style('pointer-events', 'none')
+      .text(cat.data.name);
+  });
+
+  // Leaf cells
+  const leaves = root.leaves();
+  const cells = svg.selectAll('.cell')
+    .data(leaves)
+    .enter()
+    .append('g')
+    .attr('class', 'cell')
+    .attr('transform', d => `translate(${d.x0},${d.y0})`);
+
+  // Rectangles
+  cells.append('rect')
+    .attr('width', d => Math.max(0, d.x1 - d.x0))
+    .attr('height', d => Math.max(0, d.y1 - d.y0))
+    .attr('fill', d => getColor(d.data, metric))
+    .attr('rx', 2)
+    .on('mousemove', (event, d) => showTooltip(event, d.data, metric))
+    .on('mouseleave', hideTooltip);
+
+  // Labels — only show if cell is large enough
+  cells.each(function(d) {
+    const w = d.x1 - d.x0;
+    const h = d.y1 - d.y0;
+    const g = d3.select(this);
+
+    if (w > 55 && h > 26) {
+      // Main title
+      const titleWords = d.data.title.split(' ');
+      const midY = h / 2;
+
+      if (w > 80 && h > 40) {
+        // Multi-line title
+        const line1 = titleWords.slice(0, Math.ceil(titleWords.length/2)).join(' ');
+        const line2 = titleWords.slice(Math.ceil(titleWords.length/2)).join(' ');
+        g.append('text')
+          .attr('class', 'cell-label')
+          .attr('x', w/2)
+          .attr('y', h > 60 ? midY - 8 : midY - 4)
+          .attr('text-anchor', 'middle')
+          .text(line1.length > 16 ? line1.slice(0,14)+'…' : line1);
+        if (line2 && h > 50) {
+          g.append('text')
+            .attr('class', 'cell-label')
+            .attr('x', w/2)
+            .attr('y', h > 60 ? midY + 6 : midY + 8)
+            .attr('text-anchor', 'middle')
+            .text(line2.length > 16 ? line2.slice(0,14)+'…' : line2);
+        }
+      } else {
+        g.append('text')
+          .attr('class', 'cell-label')
+          .attr('x', w/2)
+          .attr('y', midY)
+          .attr('text-anchor', 'middle')
+          .text(d.data.title.length > 18 ? d.data.title.slice(0,16)+'…' : d.data.title);
+      }
+
+      // Sub-labels for large cells
+      if (w > 80 && h > 65) {
+        if (metric === 'ai_exposure') {
+          g.append('text')
+            .attr('class', 'cell-sublabel')
+            .attr('x', w/2)
+            .attr('y', h - 14)
+            .attr('text-anchor', 'middle')
+            .text(`AI: ${d.data.ai_exposure}/10`);
+        } else if (metric === 'wage') {
+          g.append('text')
+            .attr('class', 'cell-sublabel')
+            .attr('x', w/2)
+            .attr('y', h - 14)
+            .attr('text-anchor', 'middle')
+            .text(`৳${(d.data.avg_monthly_wage_bdt/1000).toFixed(0)}K/mo`);
+        } else if (metric === 'headcount') {
+          g.append('text')
+            .attr('class', 'cell-sublabel')
+            .attr('x', w/2)
+            .attr('y', h - 14)
+            .attr('text-anchor', 'middle')
+            .text(`${(d.data.headcount/1e6).toFixed(1)}M workers`);
+        }
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Controls
+// ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMetric = btn.dataset.metric;
+    renderLegend(currentMetric);
+    renderTreemap(currentMetric);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// Init + Resize
+// ─────────────────────────────────────────────────────────────────
+function init() {
+  renderLegend(currentMetric);
+  renderTreemap(currentMetric);
+}
+
+window.addEventListener('resize', () => {
+  renderTreemap(currentMetric);
+});
+
+init();
+</script>
+</body>
+</html>
