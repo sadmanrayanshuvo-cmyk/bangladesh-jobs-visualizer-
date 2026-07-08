@@ -1,0 +1,324 @@
+[
+  {
+    "slug": "rice-paddy-farmer",
+    "title": "Rice & Paddy Farmer",
+    "category": "Agriculture",
+    "sector": "Agriculture",
+    "description": "Cultivates rice and paddy fields; manages irrigation, planting, harvesting with manual and basic mechanized tools. Work is entirely physical, seasonal, and location-bound within rural Bangladesh."
+  },
+  {
+    "slug": "vegetable-farmer",
+    "title": "Vegetable & Horticulture Farmer",
+    "category": "Agriculture",
+    "sector": "Agriculture",
+    "description": "Grows vegetables and fruits for domestic market. Involves manual labour, field preparation, irrigation. Operates in rural areas."
+  },
+  {
+    "slug": "jute-worker",
+    "title": "Jute Cultivation & Processing Worker",
+    "category": "Agriculture",
+    "sector": "Agriculture",
+    "description": "Grows, harvests, and processes jute fibre. Highly manual, physically demanding, weather-dependent work in rural Bangladesh."
+  },
+  {
+    "slug": "fisherman",
+    "title": "Fisherman (Inland & Coastal)",
+    "category": "Agriculture",
+    "sector": "Agriculture",
+    "description": "Catches fish using nets, traps and boats in rivers, ponds and the Bay of Bengal. Entirely physical, location-bound work requiring knowledge of local waterways."
+  },
+  {
+    "slug": "poultry-livestock-farmer",
+    "title": "Poultry & Livestock Farmer",
+    "category": "Agriculture",
+    "sector": "Agriculture",
+    "description": "Raises chickens, ducks, cattle and goats. Daily hands-on feeding, healthcare, and management. Physically intensive and location-specific."
+  },
+  {
+    "slug": "agricultural-day-laborer",
+    "title": "Agricultural Day Laborer",
+    "category": "Agriculture",
+    "sector": "Agriculture",
+    "description": "Performs seasonal wage labour including planting, weeding, harvesting. No fixed employer; highly physical and unstructured."
+  },
+  {
+    "slug": "shrimp-farmer",
+    "title": "Shrimp & Aquaculture Farmer",
+    "category": "Agriculture",
+    "sector": "Agriculture",
+    "description": "Manages shrimp ghers (brackish ponds) particularly in coastal Khulna and Bagerhat districts. Physical monitoring, feeding, and harvesting."
+  },
+  {
+    "slug": "rmg-sewing-operator",
+    "title": "RMG Sewing Machine Operator",
+    "category": "Ready-Made Garments",
+    "sector": "Manufacturing",
+    "description": "Operates industrial sewing machines in garment factories to stitch fabric panels. Highly repetitive, physically present on factory floor. Requires manual dexterity and speed."
+  },
+  {
+    "slug": "rmg-quality-inspector",
+    "title": "RMG Quality Control Inspector",
+    "category": "Ready-Made Garments",
+    "sector": "Manufacturing",
+    "description": "Inspects finished garments for defects, dimensions, and stitching quality. Works on factory floor with physical inspection of materials. Uses basic digital checklists."
+  },
+  {
+    "slug": "rmg-cutting-worker",
+    "title": "RMG Fabric Cutting Worker",
+    "category": "Ready-Made Garments",
+    "sector": "Manufacturing",
+    "description": "Operates cutting machines and scissors to cut fabric patterns. Physical, precise manual work in garment factories."
+  },
+  {
+    "slug": "rmg-supervisor",
+    "title": "RMG Production Supervisor / Line Chief",
+    "category": "Ready-Made Garments",
+    "sector": "Manufacturing",
+    "description": "Oversees a production line of 20-50 sewing operators. Manages targets, quality, and attendance. Some use ERP systems for reporting."
+  },
+  {
+    "slug": "textile-spinner",
+    "title": "Textile Mill Spinner / Weaver",
+    "category": "Manufacturing",
+    "sector": "Manufacturing",
+    "description": "Operates spinning or weaving machinery in textile mills. Physical machine operation; fixed factory location."
+  },
+  {
+    "slug": "construction-worker",
+    "title": "Construction / Civil Works Laborer",
+    "category": "Construction",
+    "sector": "Manufacturing",
+    "description": "Performs manual labour on building and infrastructure projects\u2014brick laying, concrete mixing, scaffolding. Entirely physical and site-bound."
+  },
+  {
+    "slug": "mason-carpenter",
+    "title": "Mason & Carpenter (Construction)",
+    "category": "Construction",
+    "sector": "Manufacturing",
+    "description": "Skilled tradesperson constructing and finishing buildings. Manual craft requiring physical presence on site."
+  },
+  {
+    "slug": "electrician-plumber",
+    "title": "Electrician & Plumber (Building Services)",
+    "category": "Construction",
+    "sector": "Manufacturing",
+    "description": "Installs and maintains electrical wiring and plumbing systems in buildings. Hands-on, site-specific technical work."
+  },
+  {
+    "slug": "factory-machine-operator",
+    "title": "Factory Machine Operator (General)",
+    "category": "Manufacturing",
+    "sector": "Manufacturing",
+    "description": "Operates production machinery in pharmaceuticals, food processing, ceramics, or steel sectors. Physical presence required."
+  },
+  {
+    "slug": "shipbuilding-worker",
+    "title": "Shipbuilding & Repair Worker",
+    "category": "Manufacturing",
+    "sector": "Manufacturing",
+    "description": "Works in Dhaka and Chittagong shipyards on vessel construction and repair. Heavy manual and technical work."
+  },
+  {
+    "slug": "retail-shop-worker",
+    "title": "Retail Shop Worker / Salesperson",
+    "category": "Trade & Commerce",
+    "sector": "Services",
+    "description": "Works in markets (bazaar), shops, or malls serving customers, stocking shelves and handling cash. Involves local human interaction. Basic digital POS in larger stores."
+  },
+  {
+    "slug": "rickshaw-driver",
+    "title": "Rickshaw / Van Puller",
+    "category": "Transport",
+    "sector": "Services",
+    "description": "Provides cycle-rickshaw or van transportation in urban and peri-urban areas. Entirely physical, location-bound work."
+  },
+  {
+    "slug": "ride-sharing-driver",
+    "title": "Ride-Sharing Driver (Pathao / Shohoz)",
+    "category": "Transport",
+    "sector": "Services",
+    "description": "Provides motorcycle taxi or car ride-hailing through apps like Pathao or Shohoz. Uses smartphone app to accept rides but work is physical driving."
+  },
+  {
+    "slug": "truck-bus-driver",
+    "title": "Truck / Bus / Tempo Driver",
+    "category": "Transport",
+    "sector": "Services",
+    "description": "Drives freight trucks or passenger buses on road networks. Physical driving requiring local navigation expertise."
+  },
+  {
+    "slug": "hotel-restaurant-worker",
+    "title": "Hotel, Restaurant & Food Service Worker",
+    "category": "Hospitality",
+    "sector": "Services",
+    "description": "Prepares and serves food and beverages. Physically present in kitchens and dining areas. Requires in-person customer service."
+  },
+  {
+    "slug": "domestic-worker",
+    "title": "Domestic Worker / Household Help",
+    "category": "Household Services",
+    "sector": "Services",
+    "description": "Performs household chores including cooking, cleaning, and childcare in private homes. Entirely physical and in-person."
+  },
+  {
+    "slug": "mobile-banking-agent",
+    "title": "Mobile Banking Agent (bKash / Nagad)",
+    "category": "Financial Services",
+    "sector": "Services",
+    "description": "Operates mobile financial service point for cash in/out, transfers. Uses smartphone app but requires physical customer interaction for cash handling."
+  },
+  {
+    "slug": "microfinance-field-officer",
+    "title": "Microfinance Field Officer (NGO/MFI)",
+    "category": "Financial Services",
+    "sector": "Services",
+    "description": "Visits rural clients weekly for loan disbursement and collection for organizations like Grameen Bank, BRAC, ASA. Mostly field-based with mobile app support."
+  },
+  {
+    "slug": "pharmacy-salesperson",
+    "title": "Pharmacy Salesperson / Drug Dispenser",
+    "category": "Healthcare Retail",
+    "sector": "Services",
+    "description": "Sells prescription and OTC medicines from pharmacy. Requires local presence and basic product knowledge. Limited digitization."
+  },
+  {
+    "slug": "beauty-salon-worker",
+    "title": "Beauty Salon & Barber Worker",
+    "category": "Personal Services",
+    "sector": "Services",
+    "description": "Provides haircuts, beauty treatments, and grooming services. Entirely physical and human-contact-dependent."
+  },
+  {
+    "slug": "software-engineer",
+    "title": "Software Engineer / Developer",
+    "category": "IT & Digital",
+    "sector": "Professional",
+    "description": "Designs, codes, tests, and deploys software applications. Work product is entirely digital\u2014code, documentation, APIs. Can work remotely. Heavily uses AI coding tools."
+  },
+  {
+    "slug": "data-analyst",
+    "title": "Data Analyst / Business Analyst",
+    "category": "IT & Digital",
+    "sector": "Professional",
+    "description": "Collects, processes, and analyses data to generate reports and dashboards for business decisions. Digital work product\u2014SQL, Python, Excel, BI tools."
+  },
+  {
+    "slug": "it-support-technician",
+    "title": "IT Support & Helpdesk Technician",
+    "category": "IT & Digital",
+    "sector": "Professional",
+    "description": "Provides technical support for hardware and software. Mix of remote troubleshooting and physical presence for hardware issues."
+  },
+  {
+    "slug": "freelance-digital-worker",
+    "title": "Freelance Digital Worker (Upwork/Fiverr)",
+    "category": "IT & Digital",
+    "sector": "Professional",
+    "description": "Provides digital services\u2014graphic design, content writing, data entry, web development\u2014through online platforms. Work is entirely digital and remoteable."
+  },
+  {
+    "slug": "bank-officer",
+    "title": "Bank Officer / Financial Analyst",
+    "category": "Banking & Finance",
+    "sector": "Professional",
+    "description": "Processes loans, manages accounts, conducts financial analysis. Primarily digital work using banking software but requires in-person client interaction for KYC."
+  },
+  {
+    "slug": "bcs-admin-officer",
+    "title": "BCS Administration Officer (Govt.)",
+    "category": "Government & Civil Service",
+    "sector": "Professional",
+    "description": "Manages administrative functions, policy implementation, and public service delivery. Mix of document processing, citizen interaction, and field visits."
+  },
+  {
+    "slug": "primary-school-teacher",
+    "title": "Primary School Teacher",
+    "category": "Education",
+    "sector": "Professional",
+    "description": "Teaches children aged 6-11 in primary schools. Physically present in classroom. Minimal digital tools in rural areas; some digital content in urban schools."
+  },
+  {
+    "slug": "secondary-school-teacher",
+    "title": "Secondary & Higher Secondary Teacher",
+    "category": "Education",
+    "sector": "Professional",
+    "description": "Teaches grades 6-12. Growing use of digital content and online tutoring. Core role is in-classroom instruction."
+  },
+  {
+    "slug": "university-professor",
+    "title": "University / College Professor",
+    "category": "Education",
+    "sector": "Professional",
+    "description": "Conducts lectures, research, and academic publishing. Growing digital output\u2014papers, course content, LMS. Research work is highly digital."
+  },
+  {
+    "slug": "medical-doctor",
+    "title": "Medical Doctor (MBBS / Specialist)",
+    "category": "Healthcare",
+    "sector": "Professional",
+    "description": "Diagnoses and treats patients. Core work requires physical examination and in-person consultation. Some telehealth emerging."
+  },
+  {
+    "slug": "nurse-paramedic",
+    "title": "Nurse & Paramedic",
+    "category": "Healthcare",
+    "sector": "Professional",
+    "description": "Provides bedside patient care, administers medication, monitors vitals. Entirely physical and requires presence in healthcare facilities."
+  },
+  {
+    "slug": "journalist-media",
+    "title": "Journalist / Media Professional",
+    "category": "Media & Communications",
+    "sector": "Professional",
+    "description": "Reports, writes, and edits news content for TV, newspaper, or online platforms. Work product is digital text and video. Research and writing can be done remotely."
+  },
+  {
+    "slug": "accountant-auditor",
+    "title": "Accountant / Auditor",
+    "category": "Banking & Finance",
+    "sector": "Professional",
+    "description": "Prepares financial statements, tax returns, and audit reports. Work is primarily digital\u2014spreadsheets, accounting software (Tally, SAP)."
+  },
+  {
+    "slug": "lawyer-judge",
+    "title": "Lawyer / Legal Professional",
+    "category": "Legal",
+    "sector": "Professional",
+    "description": "Provides legal advice, drafts contracts, argues cases. Mix of document preparation (digital) and physical court appearances."
+  },
+  {
+    "slug": "ngo-development-worker",
+    "title": "NGO & Development Worker",
+    "category": "Civil Society",
+    "sector": "Professional",
+    "description": "Manages development programs, conducts surveys, facilitates community meetings. Mix of field work and digital report writing. Bangladesh has largest NGO sector globally."
+  },
+  {
+    "slug": "engineer-civil-electrical",
+    "title": "Civil & Electrical Engineer (Formal Sector)",
+    "category": "Engineering",
+    "sector": "Professional",
+    "description": "Designs and supervises infrastructure and power projects. Mix of digital (AutoCAD, design software) and on-site supervision."
+  },
+  {
+    "slug": "call-center-agent",
+    "title": "Call Center / BPO Agent",
+    "category": "IT & Digital",
+    "sector": "Professional",
+    "description": "Handles inbound/outbound calls and digital chats for customer service. Work product is entirely conversational and digital."
+  },
+  {
+    "slug": "migrant-worker-abroad",
+    "title": "Overseas Migrant Worker (Gulf/Malaysia)",
+    "category": "Migrant Labor",
+    "sector": "Services",
+    "description": "Works abroad in construction, cleaning, domestic service, manufacturing primarily in Saudi Arabia, UAE, Malaysia, Qatar. Physically demanding roles in foreign countries."
+  },
+  {
+    "slug": "garments-merchandiser",
+    "title": "Garments Merchandiser / Export Officer",
+    "category": "Ready-Made Garments",
+    "sector": "Professional",
+    "description": "Coordinates between buyers and factories on orders, quality, and shipment. Uses email, spreadsheets, ERP systems. Mix of digital coordination and factory floor visits."
+  }
+]
